@@ -97,11 +97,7 @@
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
-              "value": "~2"
-            },
-            {
-              "name": "WEBSITE_NODE_DEFAULT_VERSION",
-              "value": "8.11.1"
+              "value": "~3"
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
