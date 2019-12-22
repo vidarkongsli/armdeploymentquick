@@ -20,6 +20,9 @@ steps:
   inputs:
     command: publish
     zipAfterPublish: true
+    publishWebProjects: false
+    projects:
+      src/ARMState.csproj
 
 - task: PowerShell@2
   displayName: Check if infrastcuture should be updated
