@@ -1,0 +1,19 @@
+POST https://armstate20191214083323.azurewebsites.net/api/CheckState
+    ?code=S/qifih5rm6Wea8VzggQLU0Ys8ibpsIlfW1OSPiCo44siF1rnAFkSQ==
+    &key=mykey
+Content-Type: application/json
+
+{
+    "foo":"bar"
+}
+
+###
+
+POST https://armstate20191214083323.azurewebsites.net/api/UpdateState
+    ?code=S/qifih5rm6Wea8VzggQLU0Ys8ibpsIlfW1OSPiCo44siF1rnAFkSQ==
+    &key=mykey
+Content-Type: application/json
+
+{
+    "foo":"bar"
+}
