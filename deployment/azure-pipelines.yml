@@ -28,6 +28,7 @@ steps:
     command: publish
     zipAfterPublish: true
     publishWebProjects: false
+    arguments: '--configuration Release -o $(Build.ArtifactStagingDirectory)'
     projects:
       src/ARMState.csproj
 
@@ -50,8 +51,8 @@ steps:
     azureSubscription: $(serviceConnection)
     resourceGroupName: '$(resourceGroupName)'
     templateLocation: Linked artifact
-    csmFile: 'azuredeploy.json'
-    csmParametersFile: 'azuredeploy.parameters.json'
+    csmFile: 'deployment/azuredeploy.json'
+    csmParametersFile: 'deployment/azuredeploy.parameters.json'
 
 - task: PowerShell@2
   displayName: Save state of infrastructure configuration
@@ -70,4 +71,4 @@ steps:
     azureSubscription: $(serviceConnection)
     appType: functionApp
     appName: $(funcAppName)
-    package: '$(Build.ArtifactStagingDirectory)/$(funcAppName)$(Build.BuildId).zip'
+    package: '$(Build.ArtifactStagingDirectory)/*.zip'
