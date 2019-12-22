@@ -2,10 +2,10 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 
 variables:
   mavenPomFile : 'pom.xml'
-  funcAppName: 'azurefunctionsjavacicd'
+  funcAppName: 'ARMState20191214083323'
+  resourceGroupName: 'vidarfunctest'
   location: 'Westeurope'
   #serviceConnection: ''
-  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
 
 trigger:
   branches:
@@ -16,50 +16,43 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: CacheBeta@0
-  displayName: Cache Maven local repo
+- task: DotNetCoreCLI@2
   inputs:
-    key: 'maven | "$(Agent.OS)" | $(mavenPomFile)'
-    restoreKeys: |
-      maven | "$(Agent.OS)"
-      maven
-    path: $(MAVEN_CACHE_FOLDER)
+    command: publish
+    zipAfterPublish: true
 
-- task: Maven@3
-  displayName: Build function
+- task: PowerShell@2
+  displayName: Check if infrastcuture should be updated
   inputs:
-    mavenPomFile: $(mavenPomFile)
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: false
-    testResultsFiles: '**/TEST-*.xml'
-    goals: 'package'
-    options: '--batch-mode -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)'
-
-- task: PublishTestResults@2
-  displayName: Publish test results
-  inputs:
-    testResultsFiles: '**/TEST-*.xml'
-
-- task: ArchiveFiles@2
-  displayName: Create zipped package
-  inputs:
-    rootFolderOrFile: 'target/azure-functions/$(funcAppName)'
-    includeRootFolder: false 
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(funcAppName)$(Build.BuildId).zip' 
+    targetType: 'filePath' # Optional. Options: filePath, inline
+    filePath: deployment/check-rgstatus.ps1
+    arguments: '-key $(funcAppName)dev -filesToHash $(Build.SourcesDirectory)/deployment/azuredeploy.json,$(Build.SourcesDirectory)/deployment/azuredeploy.parameters.json'
+    errorActionPreference: 'stop' # Optional. Options: stop, continue, silentlyContinue
+    failOnStderr: true # Optional
+    pwsh: true # Optional
 
 - task: AzureResourceGroupDeployment@2
   displayName: Provision Azure infrastructure
+  condition: and(succeeded(), ne(variables['noprovision'], 'true'))
   inputs:
     action: Create Or Update Resource Group
     location: $(location)
     azureSubscription: $(serviceConnection)
-    resourceGroupName: '$(funcAppName)-rg'
+    resourceGroupName: '$(resourceGroupName)'
     templateLocation: Linked artifact
     csmFile: 'azuredeploy.json'
     csmParametersFile: 'azuredeploy.parameters.json'
+
+- task: PowerShell@2
+  displayName: Save state of infrastructure configuration
+  condition: and(succeeded(), ne(variables['noprovision'], 'true'))
+  inputs:
+    targetType: 'filePath' # Optional. Options: filePath, inline
+    filePath: deployment/update-rgstatus.ps1
+    arguments: '-key $(funcAppName)dev -filesToHash $(Build.SourcesDirectory)/deployment/azuredeploy.json,$(Build.SourcesDirectory)/deployment/azuredeploy.parameters.json'
+    errorActionPreference: 'stop' # Optional. Options: stop, continue, silentlyContinue
+    failOnStderr: true # Optional
+    pwsh: true # Optional
 
 - task: AzureFunctionApp@1
   displayName: Deploy function app
