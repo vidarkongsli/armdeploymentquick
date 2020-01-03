@@ -3,10 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "appName": {
-      "value": "azurefunctionsjavacicd"
+      "value": "armstate20191214083323"
     },
     "runtime":{
-      "value":"java"
+      "value":"dotnet"
     }
   }
 }
