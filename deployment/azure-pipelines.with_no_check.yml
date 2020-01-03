@@ -1,0 +1,54 @@
+name: $(BuildDefinitionName)_$(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
+
+variables:
+  mavenPomFile : 'pom.xml'
+  funcAppName: 'funkyfunkz'
+  resourceGroupName: 'vidarfunctest2'
+  location: 'Westeurope'
+  #serviceConnection: ''
+
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET Core SDK 3.1'
+  inputs:
+    packageType: sdk
+    version: 3.1.x
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build function app'
+  inputs:
+    command: publish
+    zipAfterPublish: true
+    publishWebProjects: false
+    arguments: '--configuration Release -o $(Build.ArtifactStagingDirectory)'
+    projects:
+      src/ARMState.csproj
+
+- task: AzureResourceGroupDeployment@2
+  displayName: Provision Azure infrastructure
+  inputs:
+    action: Create Or Update Resource Group
+    location: $(location)
+    azureSubscription: $(serviceConnection)
+    resourceGroupName: '$(resourceGroupName)'
+    templateLocation: Linked artifact
+    csmFile: 'deployment/azuredeploy.json'
+    csmParametersFile: 'deployment/azuredeploy.parameters.json'
+    overrideParameters: '-appName $(funcAppName)'
+
+- task: AzureFunctionApp@1
+  displayName: Deploy function app
+  inputs:
+    azureSubscription: $(serviceConnection)
+    appType: functionApp
+    appName: $(funcAppName)
+    package: '$(Build.ArtifactStagingDirectory)/*.zip'
