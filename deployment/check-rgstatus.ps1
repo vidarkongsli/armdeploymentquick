@@ -3,6 +3,8 @@ param (
     $key,
     [Parameter(Mandatory)]
     [array]$filesToHash,
+    [Parameter(Mandatory=$false)]
+    [string]$additionalInputs,
     $azFunctionPrefix = 'https://armstate20191214083323.azurewebsites.net/api',
     $azFunctionApiKey = 'S/qifih5rm6Wea8VzggQLU0Ys8ibpsIlfW1OSPiCo44siF1rnAFkSQ=='
 )
@@ -12,6 +14,10 @@ if ($filesToHash.Count -eq 0) {
 }
 
 $inputValue = $filesToHash | ForEach-Object { Get-Content $_ } | Out-String
+if ($additionalInputs) {
+    Write-host "Adding to input: $additionalInputs"
+    $inputValue =+ $additionalInputs
+}
 $uri = "$azFunctionPrefix/CheckState?key=$key&code=$azFunctionApiKey"
 $statusCheck = Invoke-RestMethod -Method Post -Uri $uri -Body $inputValue -ErrorAction SilentlyContinue 
 

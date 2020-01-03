@@ -17,13 +17,14 @@ pool:
 
 steps:
 - task: UseDotNet@2
-  displayName: 'Use .NET Core sdk'
+  displayName: 'Use .NET Core SDK 3.1'
   inputs:
     packageType: sdk
     version: 3.1.x
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - task: DotNetCoreCLI@2
+  displayName: 'Build function app'
   inputs:
     command: publish
     zipAfterPublish: true
@@ -37,7 +38,7 @@ steps:
   inputs:
     targetType: 'filePath' # Optional. Options: filePath, inline
     filePath: deployment/check-rgstatus.ps1
-    arguments: '-key $(funcAppName)dev -filesToHash $(Build.SourcesDirectory)/deployment/azuredeploy.json,$(Build.SourcesDirectory)/deployment/azuredeploy.parameters.json'
+    arguments: '-key $(funcAppName)dev -additionalInputs $(funcAppName) -filesToHash $(Build.SourcesDirectory)/deployment/azuredeploy.json,$(Build.SourcesDirectory)/deployment/azuredeploy.parameters.json'
     errorActionPreference: 'stop' # Optional. Options: stop, continue, silentlyContinue
     failOnStderr: true # Optional
     pwsh: true # Optional
@@ -52,7 +53,8 @@ steps:
     resourceGroupName: '$(resourceGroupName)'
     templateLocation: Linked artifact
     csmFile: 'deployment/azuredeploy.json'
-    overrideParameters: '-runtime dotnet -appName $(funcAppName)'
+    csmParametersFile: 'deployment/azuredeploy.parameters.json'
+    overrideParameters: '-appName $(funcAppName)'
 
 - task: PowerShell@2
   displayName: Save state of infrastructure configuration
@@ -60,7 +62,7 @@ steps:
   inputs:
     targetType: 'filePath' # Optional. Options: filePath, inline
     filePath: deployment/update-rgstatus.ps1
-    arguments: '-key $(funcAppName)dev -filesToHash $(Build.SourcesDirectory)/deployment/azuredeploy.json,$(Build.SourcesDirectory)/deployment/azuredeploy.parameters.json'
+    arguments: '-key $(funcAppName)dev -additionalInputs $(funcAppName) -filesToHash $(Build.SourcesDirectory)/deployment/azuredeploy.json,$(Build.SourcesDirectory)/deployment/azuredeploy.parameters.json'
     errorActionPreference: 'stop' # Optional. Options: stop, continue, silentlyContinue
     failOnStderr: true # Optional
     pwsh: true # Optional

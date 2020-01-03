@@ -3,6 +3,8 @@ param (
     $key,
     [Parameter(Mandatory)]
     [array]$filesToHash,
+    [Parameter(Mandatory=$false)]
+    [string]$additionalInputs,
     $azFunctionPrefix = 'https://armstate20191214083323.azurewebsites.net/api',
     $azFunctionApiKey = 'S/qifih5rm6Wea8VzggQLU0Ys8ibpsIlfW1OSPiCo44siF1rnAFkSQ=='
 )
