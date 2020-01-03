@@ -3,7 +3,7 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 variables:
   mavenPomFile : 'pom.xml'
   funcAppName: 'funkyfunkz'
-  resourceGroupName: 'vidarfunctest2'
+  resourceGroupName: 'funkyfunkz-rg'
   location: 'Westeurope'
   #serviceConnection: ''
 
