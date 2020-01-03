@@ -2,7 +2,7 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 
 variables:
   mavenPomFile : 'pom.xml'
-  funcAppName: 'funkyfunction'
+  funcAppName: 'princeandiamfunky'
   resourceGroupName: 'vidarfunctest2'
   location: 'Westeurope'
   #serviceConnection: ''
