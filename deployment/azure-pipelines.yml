@@ -2,8 +2,8 @@ name: $(BuildDefinitionName)_$(SourceBranchName)_$(date:yyyyMMdd)$(rev:.r)
 
 variables:
   mavenPomFile : 'pom.xml'
-  funcAppName: 'ARMState20191214083323'
-  resourceGroupName: 'vidarfunctest'
+  funcAppName: 'funkyfunction'
+  resourceGroupName: 'vidarfunctest2'
   location: 'Westeurope'
   #serviceConnection: ''
 
@@ -52,7 +52,7 @@ steps:
     resourceGroupName: '$(resourceGroupName)'
     templateLocation: Linked artifact
     csmFile: 'deployment/azuredeploy.json'
-    csmParametersFile: 'deployment/azuredeploy.parameters.json'
+    overrideParameters: '-runtime dotnet -appName $(funcAppName)'
 
 - task: PowerShell@2
   displayName: Save state of infrastructure configuration
