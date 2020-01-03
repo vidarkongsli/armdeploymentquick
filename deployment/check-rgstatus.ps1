@@ -13,11 +13,7 @@ if ($filesToHash.Count -eq 0) {
     Write-Error 'List of files to hash is empty.'
 }
 
-$inputValue = $filesToHash | ForEach-Object { Get-Content $_ } | Out-String
-if ($additionalInputs) {
-    Write-host "Adding to input: $additionalInputs"
-    $inputValue =+ $additionalInputs
-}
+$inputValue = "$($filesToHash | ForEach-Object { Get-Content $_ } | Out-String)$additionalInputs"
 $uri = "$azFunctionPrefix/CheckState?key=$key&code=$azFunctionApiKey"
 $statusCheck = Invoke-RestMethod -Method Post -Uri $uri -Body $inputValue -ErrorAction SilentlyContinue 
 
